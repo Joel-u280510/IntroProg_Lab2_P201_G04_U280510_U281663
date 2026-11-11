@@ -269,8 +269,11 @@ def ask_yes_no(prompt: str) -> bool:
     - Print a short message (e.g. "Please answer y/n.") when the answer is invalid.
     - Return only after receiving a valid input; do not stop the program with errors.
     """
+    #Condició per entrar al bucle de preguntes
     while True:
+        #input del usuari amb el prompt i conversió a minúscules
         answer = input(prompt).strip().lower()
+        #condicions per retornar True o False o print depenent de la resposta
         if answer == "yes" or answer == "y":
             return True
         elif answer == "no" or answer == "n":
@@ -296,12 +299,16 @@ def move_paddle(current_y: int, direction: int, speed: int, height: int, paddle_
     Take into account that the paddle must always stay fully visible on screen.
     That is when it reaches the limits (up or down) it stays there, so consider paddle_h and height here.
     """
-    # TODO: put your code!!!!
+    # Definim la variable new_y com la posició actual del paddle més la direcció multiplicada per la velocitat
+    new_y = current_y + direction * speed
+    # Establim condicions per assegurar-nos que el paddle es manté dins dels límits
+    if new_y < 0:
+        new_y = 0
+    elif new_y > height - paddle_h:
+        new_y = height - paddle_h
+    #retornem la nova posició del paddle
+    return new_y
     
-    # This line of code has been left for letting the full program work
-    # You will need to eliminate it when adding your code
-    return current_y
-
 
 def move_ball(x: int, y: int, vx: int, vy: int) -> tuple[int, int]:
     """Move the ball one time step. Return (x', y').
@@ -318,10 +325,10 @@ def move_ball(x: int, y: int, vx: int, vy: int) -> tuple[int, int]:
     """
 
     # TODO: put your code!!!!
-
-    # This line of code has been left for letting the full program work
-    # You will need to eliminate it when adding your code
-    return x, y
+    new_x = x + vx
+    new_y = y + vy
+    
+    return new_x, new_y
 
 
 def collide_ball_walls(x: int, y: int, vx: int, vy: int, radius: int, width: int, height: int) -> tuple[int, int, int, int]:
@@ -343,9 +350,13 @@ def collide_ball_walls(x: int, y: int, vx: int, vy: int, radius: int, width: int
         For precisely detecting collisions, you might need to consider the ball radius
     """
     # TODO: put your code!!!!
-
-    # This line of code has been left for letting the full program work
-    # You will need to eliminate it when adding your code
+    if y - radius < 0: # Condició per detectar col·lisió amb la paret horitzontal superior
+        y = radius # Actualiztem la posició vertical respecte la condició de col·lisió
+        vy = -vy # Invertim la velocitat vertical per simular que rebota
+    elif y + radius > height: # Condició per detectar col·lisió amb la paret horitzontal inferior
+        y = height - radius # Actualiztem la posició vertical respecte la condició de col·lisió
+        vy = -vy # Invertim la velocitat vertical per simular que rebota
+    
     return x, y, vx, vy
 
 
@@ -399,10 +410,25 @@ def collide_ball_paddle(x: int, y: int, vx: int, vy: int, paddle_x: int, paddle_
       which is sufficient for this game.
     """
     # TODO: put your code!!!!
-    hit = False
+    ball_left = x - radius
+    ball_right = x + radius
+    ball_top = y - radius
+    ball_bottom = y + radius
+    paddle_left = paddle_x
+    paddle_right = paddle_x + paddle_w
+    paddle_top = paddle_y
+    paddle_bottom = paddle_y + paddle_h
 
-    # This line of code has been left for letting the full program work
-    # You will need to eliminate it when adding your code
+    if (ball_right >= paddle_left and ball_left <= paddle_right and
+        ball_bottom >= paddle_top and ball_top <= paddle_bottom):
+        if vx > 0:
+            x = paddle_left - radius
+        else:
+            x = paddle_right + radius
+        hit = True
+        vx = -vx
+    else:
+        hit = False
     return x, y, vx, vy, hit
 
 def reset_ball(center_x: int, center_y: int, vx0: int, vy0: int, to_right: bool) -> tuple[int, int, int, int]:
